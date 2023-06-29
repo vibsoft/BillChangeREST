@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class BillChangeServiceImpl implements BillChangeService {
 
-  public static final List<Integer> AVAILABLE_BILLS = Arrays.asList(1, 2, 5, 10, 25, 50, 100);
+  public static final Integer[] AVAILABLE_BILLS = new Integer[] {1, 2, 5, 10, 25, 50, 100};
 
   public static final Integer[] AVAILABLE_CENTS = new Integer[] {1, 5, 10, 25};
   private Map<Integer, Integer> coinsAvailable;

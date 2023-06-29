@@ -51,7 +51,7 @@ public class RestControllerTests {
     // exchange bill - testApi_exchangeBill()
     testApi_exchangeBill(7).andExpect(status().is4xxClientError());
     // TODO verify recursive
-    //testApi_exchangeBill(1).andExpect(status().isOk());
+    testApi_exchangeBill(1).andExpect(status().isOk());
 
     testApiMachine_State();
   }
