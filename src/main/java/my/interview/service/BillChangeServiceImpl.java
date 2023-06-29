@@ -2,6 +2,7 @@ package my.interview.service;
 
 import lombok.extern.slf4j.Slf4j;
 import my.interview.model.ChangeMachineState;
+import my.interview.model.ChangeResult;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -80,25 +81,21 @@ public class BillChangeServiceImpl implements BillChangeService {
 
   @Override
   public ChangeMachineState changeBill(Integer bill) {
-    doChangeBill(bill * 100);
-
-    return buildChangeMachineState(getCoinsAvailable());
+    return doChangeBill(bill * 100);
   }
 
   private ChangeMachineState doChangeBill(Integer billInCents) {
     BillToCoinChange exchanger = new BillToCoinChange();
 
-    log.info("doChangeBill: {} ", billInCents);
     Integer[] sortedArr = AVAILABLE_CENTS.clone();
     Arrays.sort(sortedArr, Collections.reverseOrder());
 
-    Map<Integer, Integer> coinChangeResult =
-        exchanger.coinChange(sortedArr, billInCents, coinsAvailable);
+    ChangeResult coinChangeResult = exchanger.coinChange(sortedArr, billInCents, coinsAvailable);
 
-    adjustCoinChangeResult(coinChangeResult);
+    adjustCoinChangeResult(coinChangeResult.getChangeByCoins());
 
     return ChangeMachineState.builder()
-        .changeByCent(coinChangeResult)
+        .changeResult(coinChangeResult)
         .availableCentBalance(coinsAvailable)
         .build();
   }

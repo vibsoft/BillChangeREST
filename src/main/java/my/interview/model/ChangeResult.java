@@ -7,14 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ChangeMachineState {
-  private ChangeResult changeResult;
-  private Map<Integer, Integer> availableCentBalance;
+public class ChangeResult {
+    private Integer bill;
+    private Integer coinsNumber;
+    private Map<Integer, Integer> changeByCoins;
 }

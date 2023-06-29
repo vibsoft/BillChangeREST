@@ -49,11 +49,12 @@ public class RestControllerTests {
     testApiMachine_State();
 
     // exchange bill - testApi_exchangeBill()
-    testApi_exchangeBill(7).andExpect(status().is4xxClientError());
-    // TODO verify recursive
-    testApi_exchangeBill(1).andExpect(status().isOk());
+    testApi_exchangeBill(7).andExpect(status().is4xxClientError())
+            .andExpect(jsonPath("$.code").value("Illegal bill amount: 7"));
+    testApi_exchangeBill(1).andExpect(status().isOk())
+            .andExpect(jsonPath("$.changeResult.coinsNumber").value("4"));
 
-    testApiMachine_State();
+    //testApiMachine_State();
   }
 
   public ResultActions testApiMachine_Init(int coinCount) throws Exception {
