@@ -39,7 +39,8 @@ public class RestControllerTests {
 
     // TopupCoins - testApiMachine_Topup(int coinCents, int coinCount)
     testApiMachine_Topup(35, 10)
-            .andExpect(status().is4xxClientError());
+            .andExpect(status().is4xxClientError())
+            .andExpect(jsonPath("$.code").value("Illegal cent amount: 35"));
     testApiMachine_Topup(10, 10)
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.availableCentBalance.10").value("110"));
