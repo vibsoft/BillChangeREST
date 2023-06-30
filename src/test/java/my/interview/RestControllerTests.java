@@ -55,7 +55,14 @@ public class RestControllerTests {
         .andExpect(jsonPath("$.errorReason").value("Illegal bill amount: 7"));
     testApi_exchangeBill(1)
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.changeResult.coinsCount").value("4"));
+        .andExpect(jsonPath("$.changeResult.coinsCount").value("4"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("4"))
+        .andExpect(jsonPath("$.availableCentBalance.25").value("106"));
+    testApi_exchangeBill(10)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.changeResult.coinsCount").value("40"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
+        .andExpect(jsonPath("$.availableCentBalance.25").value("66"));
 
     // testApiMachine_State();
   }

@@ -13,10 +13,10 @@ How to run tests:
 
 
 Run test from IDEA example:
-```java
-  @Test
-  public void testExchangeMachine_Scenario_1() throws Exception {
-    int coinsCount = 100;
+```
+@Test
+public void testExchangeMachine_Scenario_1() throws Exception {
+int coinsCount = 100;
 
     // Machine Init - testApiMachine_Init(int coinCount)
     testApiMachine_Init(coinsCount)
@@ -45,10 +45,17 @@ Run test from IDEA example:
         .andExpect(jsonPath("$.errorReason").value("Illegal bill amount: 7"));
     testApi_exchangeBill(1)
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.changeResult.coinsCount").value("4"));
+        .andExpect(jsonPath("$.changeResult.coinsCount").value("4"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("4"))
+        .andExpect(jsonPath("$.availableCentBalance.25").value("106"));
+    testApi_exchangeBill(10)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.changeResult.coinsCount").value("40"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
+        .andExpect(jsonPath("$.availableCentBalance.25").value("66"));
 
     // testApiMachine_State();
-  }
+}
 ```
 
 ![img.png](img.png)

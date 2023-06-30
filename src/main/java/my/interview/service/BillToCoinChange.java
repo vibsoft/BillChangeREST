@@ -3,9 +3,7 @@ package my.interview.service;
 import lombok.extern.slf4j.Slf4j;
 import my.interview.model.ChangeResult;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class BillToCoinChange {
@@ -46,10 +44,11 @@ public class BillToCoinChange {
     }
 
     log.info(
-        "BillToCoinChange - Bill '{}' can be exchanged with least amount of coins - {}, coins: {}",
+        "BillToCoinChange - Bill '{}' can be exchanged with least amount of coins - {}, coins: {}, used coins: {}",
         amount / 100,
         minCoins,
-        coins);
+        coins,
+        coinsMemo);
 
     return ChangeResult.builder()
         .bill(amount / 100)
@@ -73,10 +72,11 @@ public class BillToCoinChange {
     }
 
     log.info(
-        "BillToCoinChange - Bill '{}' can be exchanged with most amount of coins - {}, coins: {}",
+        "BillToCoinChange - Bill '{}' can be exchanged with most amount of coins - {}, coins: {}, used coins: {}",
         amount / 100,
         maxCoins,
-        coins);
+        coins,
+        coinsMemo);
 
     return ChangeResult.builder()
         .bill(amount / 100)
@@ -86,6 +86,7 @@ public class BillToCoinChange {
   }
 
   private int coinChangeWithMinCountDP(int amount, Integer[] coins) {
+    int[] prevCoin = new int[amount + 1];
     int[] dp = new int[amount + 1];
     Arrays.fill(dp, 1, dp.length, amount + 1);
 
@@ -93,13 +94,18 @@ public class BillToCoinChange {
       for (final int coin : coins) {
         if (coin <= i) {
           dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+          // log.info("for i:{}', coin:{} - dp: {}", i ,coin, dp);
+          prevCoin[i] = coin;
         }
       }
+
+    coinsMemo = getCoinsForChangeMin(amount, prevCoin);
 
     return dp[amount] == amount + 1 ? -1 : dp[amount];
   }
 
   private int coinChangeWithMaxCountDP(int amount, Integer[] coins) {
+    int[] prevCoin = new int[amount + 1];
     int[] dp = new int[amount + 1];
     Arrays.fill(dp, 1, dp.length, -100);
 
@@ -107,11 +113,35 @@ public class BillToCoinChange {
       for (final int coin : coins) {
         if (coin <= i) {
           dp[i] = Math.max(dp[i], dp[i - coin] + 1);
+          //log.info("for i:{}', coin:{} - dp: {}", i, coin, dp);
+          prevCoin[i] = coin;
         }
       }
 
+    //coinsMemo = getCoinsForChange(amount, prevCoin);
+
     return dp[amount] == -100 ? -1 : dp[amount];
   }
+
+  private Map<Integer, Integer> getCoinsForChangeMin(int amount, int[] prevCoin) {
+    List<Integer> coinsAdded = new ArrayList<>();
+    for (int i = amount; i >= 1; ) {
+      coinsAdded.add(prevCoin[i]);
+      int j = i;
+      i = amount - prevCoin[i];
+      amount = amount - prevCoin[j];
+    }
+
+    Map<Integer, Integer> usedCoins = new HashMap<>();
+    for (Integer coin : coinsAdded) {
+      Integer currentCount = usedCoins.getOrDefault(coin, 0);
+      usedCoins.put(coin, currentCount + 1);
+    }
+    //log.info("usedCoins: {}", usedCoins);
+
+    return usedCoins;
+  }
+
   // too slow
   private int coinChangeRecursive(
       Integer[] coins,
