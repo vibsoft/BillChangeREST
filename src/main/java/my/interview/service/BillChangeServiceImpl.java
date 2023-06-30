@@ -13,8 +13,7 @@ import java.util.stream.Stream;
 public class BillChangeServiceImpl implements BillChangeService {
 
   public static final Integer[] AVAILABLE_BILLS = new Integer[] {1, 2, 5, 10, 25, 50, 100};
-
-  public static final Integer[] AVAILABLE_CENTS = new Integer[] {1, 5, 10, 25};
+  public static final Integer[] AVAILABLE_COINS = new Integer[] {1, 5, 10, 25};
   private Map<Integer, Integer> coinsAvailable;
 
   public boolean verifyBillAmount(int billAmount) {
@@ -27,7 +26,7 @@ public class BillChangeServiceImpl implements BillChangeService {
 
   @Override
   public boolean verifyCentsAmount(int centAmount) {
-    if (!Stream.of(AVAILABLE_CENTS).anyMatch(item -> item.equals(centAmount))) {
+    if (!Stream.of(AVAILABLE_COINS).anyMatch(item -> item.equals(centAmount))) {
       throw new IllegalArgumentException(String.format("Illegal cent amount: %s", centAmount));
     }
 
@@ -58,8 +57,8 @@ public class BillChangeServiceImpl implements BillChangeService {
     }
 
     coinsAvailable = new TreeMap<>();
-    for (int i = 0; i < AVAILABLE_CENTS.length; i++) {
-      coinsAvailable.put(AVAILABLE_CENTS[i], initTokensCount);
+    for (int i = 0; i < AVAILABLE_COINS.length; i++) {
+      coinsAvailable.put(AVAILABLE_COINS[i], initTokensCount);
     }
 
     return buildChangeMachineState(coinsAvailable);
@@ -87,10 +86,8 @@ public class BillChangeServiceImpl implements BillChangeService {
   private ChangeMachineState doChangeBill(Integer billInCents) {
     BillToCoinChange exchanger = new BillToCoinChange();
 
-    Integer[] sortedArr = AVAILABLE_CENTS.clone();
-    Arrays.sort(sortedArr, Collections.reverseOrder());
-
-    ChangeResult coinChangeResult = exchanger.coinChange(sortedArr, billInCents, coinsAvailable);
+    ChangeResult coinChangeResult =
+        exchanger.coinChangeWithMinCount(AVAILABLE_COINS, billInCents, coinsAvailable);
 
     adjustCoinChangeResult(coinChangeResult.getChangeByCoins());
 

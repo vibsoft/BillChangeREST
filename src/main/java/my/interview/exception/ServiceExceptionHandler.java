@@ -15,8 +15,8 @@ public class ServiceExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
             GlobalError.builder()
-                .errorReason(HttpStatus.BAD_REQUEST.name())
-                .code(ex.getMessage())
+                .errorReason(ex.getMessage())
+                .code(HttpStatus.BAD_REQUEST.name())
                 .build());
   }
 }

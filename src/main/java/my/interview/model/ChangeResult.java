@@ -14,7 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChangeResult {
-    private Integer bill;
-    private Integer coinsNumber;
-    private Map<Integer, Integer> changeByCoins;
+  private Integer bill;
+  private Integer coinsCount;
+  private Map<Integer, Integer> changeByCoins;
 }
