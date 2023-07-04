@@ -30,6 +30,7 @@ public class RestControllerTests {
 
     // Machine Init - testApiMachine_Init(int coinCount)
     testApiMachine_Init(coinsCount)
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.availableCentBalance.1").value("100"))
         .andExpect(jsonPath("$.availableCentBalance.5").value("100"))
         .andExpect(jsonPath("$.availableCentBalance.10").value("100"))
@@ -64,6 +65,20 @@ public class RestControllerTests {
         .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
         .andExpect(jsonPath("$.availableCentBalance.25").value("66"));
 
+    testApi_exchangeBill(10)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.changeResult.coinsCount").value("40"))
+            .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
+            .andExpect(jsonPath("$.availableCentBalance.25").value("26"));
+
+    testApi_exchangeBill(10)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.changeResult.coinsCount").value("61"))
+            .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("26"))
+            .andExpect(jsonPath("$.changeResult.changeByCoins.10").value("35"))
+            .andExpect(jsonPath("$.availableCentBalance.25").value("0"))
+            .andExpect(jsonPath("$.availableCentBalance.10").value("75"));
+
     // testApiMachine_State();
   }
 
@@ -75,8 +90,7 @@ public class RestControllerTests {
                 log.info(
                     "TEST - url: {}, response: {}",
                     "/api/machine/init?coinCount=" + coinCount,
-                    mvcResult.getResponse().getContentAsString()))
-        .andExpect(status().isOk());
+                    mvcResult.getResponse().getContentAsString()));
   }
 
   public ResultActions testApiMachine_State() throws Exception {

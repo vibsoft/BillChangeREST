@@ -8,8 +8,8 @@ public interface BillChangeService {
 
   ChangeMachineState getMachineState();
 
-  boolean verifyCentsAmount(int centAmount);
-  boolean verifyBillAmount(int billAmount);
+  boolean verifyCentsAmount(Integer centAmount);
+  boolean verifyBillAmount(Integer billAmount);
 
   ChangeMachineState topupCoins(Integer coinCents, Integer coinCount);
 

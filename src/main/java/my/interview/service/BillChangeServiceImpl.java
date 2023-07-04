@@ -3,6 +3,11 @@ package my.interview.service;
 import lombok.extern.slf4j.Slf4j;
 import my.interview.model.ChangeMachineState;
 import my.interview.model.ChangeResult;
+import my.interview.service.BillToCoin.BillToCoinChangeSimple;
+import my.interview.service.BillToCoin.CoinChangeWithMinCount;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,12 +17,20 @@ import java.util.stream.Stream;
 @Slf4j
 public class BillChangeServiceImpl implements BillChangeService {
 
-  public static final Integer[] AVAILABLE_BILLS = new Integer[] {1, 2, 5, 10, 25, 50, 100};
-  public static final Integer[] AVAILABLE_COINS = new Integer[] {1, 5, 10, 25};
+  @Autowired
+  @Qualifier("BillToCoinChangeSimple")
+  private CoinChangeWithMinCount coinChangeWithMinCount;
+
   private Map<Integer, Integer> coinsAvailable;
 
-  public boolean verifyBillAmount(int billAmount) {
-    if (!Stream.of(AVAILABLE_BILLS).anyMatch(item -> item.equals(billAmount))) {
+  @Value("${application.bills}")
+  public Integer[] availableBills;
+
+  @Value("${application.coins}")
+  public Integer[] availableCoins;
+
+  public boolean verifyBillAmount(Integer billAmount) {
+    if (!Stream.of(availableBills).anyMatch(item -> item.equals(billAmount))) {
       throw new IllegalArgumentException(String.format("Illegal bill amount: %s", billAmount));
     }
 
@@ -25,8 +38,8 @@ public class BillChangeServiceImpl implements BillChangeService {
   }
 
   @Override
-  public boolean verifyCentsAmount(int centAmount) {
-    if (!Stream.of(AVAILABLE_COINS).anyMatch(item -> item.equals(centAmount))) {
+  public boolean verifyCentsAmount(Integer centAmount) {
+    if (!Stream.of(availableCoins).anyMatch(item -> item.equals(centAmount))) {
       throw new IllegalArgumentException(String.format("Illegal cent amount: %s", centAmount));
     }
 
@@ -57,8 +70,8 @@ public class BillChangeServiceImpl implements BillChangeService {
     }
 
     coinsAvailable = new TreeMap<>();
-    for (int i = 0; i < AVAILABLE_COINS.length; i++) {
-      coinsAvailable.put(AVAILABLE_COINS[i], initTokensCount);
+    for (int i = 0; i < availableCoins.length; i++) {
+      coinsAvailable.put(availableCoins[i], initTokensCount);
     }
 
     return buildChangeMachineState(coinsAvailable);
@@ -84,10 +97,8 @@ public class BillChangeServiceImpl implements BillChangeService {
   }
 
   private ChangeMachineState doChangeBill(Integer billInCents) {
-    BillToCoinChange exchanger = new BillToCoinChange();
-
     ChangeResult coinChangeResult =
-        exchanger.coinChangeWithMinCount(AVAILABLE_COINS, billInCents, coinsAvailable);
+        coinChangeWithMinCount.coinChangeWithMinCount(availableCoins, billInCents, coinsAvailable);
 
     adjustCoinChangeResult(coinChangeResult.getChangeByCoins());
 
@@ -101,6 +112,12 @@ public class BillChangeServiceImpl implements BillChangeService {
     coinChangeResult.forEach(
         (key, value) -> {
           Integer current = coinsAvailable.getOrDefault(key, 0);
+
+          if (current < value) {
+            throw new IllegalArgumentException(
+                String.format("Not available %s [cent: %, current: %s]", value, key, current));
+          }
+
           coinsAvailable.put(key, current - value);
         });
   }

@@ -14,12 +14,12 @@ How to run tests:
 
 Run test from IDEA example:
 ```
-@Test
-public void testExchangeMachine_Scenario_1() throws Exception {
-int coinsCount = 100;
+ public void testExchangeMachine_Scenario_1() throws Exception {
+    int coinsCount = 100;
 
     // Machine Init - testApiMachine_Init(int coinCount)
     testApiMachine_Init(coinsCount)
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.availableCentBalance.1").value("100"))
         .andExpect(jsonPath("$.availableCentBalance.5").value("100"))
         .andExpect(jsonPath("$.availableCentBalance.10").value("100"))
@@ -54,8 +54,22 @@ int coinsCount = 100;
         .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
         .andExpect(jsonPath("$.availableCentBalance.25").value("66"));
 
+    testApi_exchangeBill(10)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.changeResult.coinsCount").value("40"))
+            .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
+            .andExpect(jsonPath("$.availableCentBalance.25").value("26"));
+
+    testApi_exchangeBill(10)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.changeResult.coinsCount").value("61"))
+            .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("26"))
+            .andExpect(jsonPath("$.changeResult.changeByCoins.10").value("35"))
+            .andExpect(jsonPath("$.availableCentBalance.25").value("0"))
+            .andExpect(jsonPath("$.availableCentBalance.10").value("75"));
+
     // testApiMachine_State();
-}
+  }
 ```
 
 ![img.png](img.png)

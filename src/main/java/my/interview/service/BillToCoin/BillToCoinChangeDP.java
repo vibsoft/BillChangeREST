@@ -1,32 +1,28 @@
-package my.interview.service;
-
-import lombok.extern.slf4j.Slf4j;
-import my.interview.model.ChangeResult;
+package my.interview.service.BillToCoin;
 
 import java.util.*;
+import lombok.extern.slf4j.Slf4j;
+import my.interview.model.ChangeResult;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-public class BillToCoinChange {
+@Service()
+public class BillToCoinChangeDP implements CoinChangeWithMinCount {
   private Map<Integer, Integer> coinsMemo;
   private Map<Integer, Integer> availableCoins;
 
-  private Integer[] getCoinsLimits(Integer[] coins, Map<Integer, Integer> availableCoins) {
-    Integer[] coinsLimit = new Integer[coins.length];
-    for (int i = 0; i < coins.length; i++) {
-      coinsLimit[i] = availableCoins.getOrDefault(coins[i], 0);
-    }
-
-    return coinsLimit;
-  }
-
+  
+  @Override
   public ChangeResult coinChangeWithMinCount(
       Integer[] coins, int amount, Map<Integer, Integer> availableCoins) {
     this.coinsMemo = new HashMap<>();
     this.availableCoins = availableCoins;
 
-    int minCoins = coinChangeWithMinCountDP(amount, coins);
+    Integer[] coinsLimits = getCoinsLimits(coins, availableCoins);
+    //int minCoins = coinChangeWithMinCountDP(amount, coins);
+    int minCoins = coinChangeWithMinCountDP(amount, coins, coinsLimits);
 
-    // Integer[] coinsLimits = getCoinsLimits(coins, availableCoins);
+
     // int changeDynamics = dynamicChange(amount, coins, coinsLimits);
     // log.info("changeCoins: {}", changeDynamics);
     // int minCoins = coinChangeRecursive(coins, amount, amount, 0, new HashMap<Integer,
@@ -83,6 +79,33 @@ public class BillToCoinChange {
         .coinsCount(maxCoins)
         .changeByCoins(coinsMemo)
         .build();
+  }
+  private int coinChangeWithMinCountDP(int amount, Integer[] coins, Integer[] limits) {
+    Integer currentAmmount = amount;
+    Integer totalCoins = 0;
+
+    for (int i= coins.length - 1; i >= 0; i--){
+      Integer currentLimit  = limits[i];
+
+
+      int  currentCoinsNumber = currentAmmount/coins[i];
+      int divider = Math.min(currentLimit, currentCoinsNumber);
+      totalCoins +=divider;
+
+      currentAmmount = currentAmmount - divider*coins[i];
+
+      log.info("MIN with limit: currentCoinsNumber: {}, curLimit: {}", currentLimit, currentCoinsNumber, divider);
+
+      if (currentCoinsNumber > 0){
+        coinsMemo.put(coins[i], totalCoins);
+      }
+
+      if (currentAmmount == 0){
+        return totalCoins;
+      }
+    }
+
+    return -1;
   }
 
   private int coinChangeWithMinCountDP(int amount, Integer[] coins) {
