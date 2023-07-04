@@ -66,18 +66,25 @@ public class RestControllerTests {
         .andExpect(jsonPath("$.availableCentBalance.25").value("66"));
 
     testApi_exchangeBill(10)
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.changeResult.coinsCount").value("40"))
-            .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
-            .andExpect(jsonPath("$.availableCentBalance.25").value("26"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.changeResult.coinsCount").value("40"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("40"))
+        .andExpect(jsonPath("$.availableCentBalance.25").value("26"));
 
     testApi_exchangeBill(10)
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.changeResult.coinsCount").value("61"))
-            .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("26"))
-            .andExpect(jsonPath("$.changeResult.changeByCoins.10").value("35"))
-            .andExpect(jsonPath("$.availableCentBalance.25").value("0"))
-            .andExpect(jsonPath("$.availableCentBalance.10").value("75"));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.changeResult.coinsCount").value("61"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.25").value("26"))
+        .andExpect(jsonPath("$.changeResult.changeByCoins.10").value("35"))
+        .andExpect(jsonPath("$.availableCentBalance.25").value("0"))
+        .andExpect(jsonPath("$.availableCentBalance.10").value("75"));
+
+    testApi_exchangeBill(20)
+        .andExpect(status().is4xxClientError())
+        .andExpect(
+            jsonPath("$.errorReason")
+                .value(
+                    "Bill '20' can not be exchanged with available coins: {1=100, 5=100, 10=75, 25=0})"));
 
     // testApiMachine_State();
   }
